@@ -1,11 +1,13 @@
 blueprint:
   name: PATLITE Signal Tower HTTP Control
-  description: Control PATLITE signal towers over HTTP
+  description: Control PATLITE signal towers over HTTP.
   domain: script
+  source_url: https://github.com/bambiman/patlite-signal-tower-http-control/blob/main/blueprints/script/bambiman/patlite_control.yaml
 
   input:
     patlite_ip:
       name: PATLITE IP
+      description: PATLITE IP address.
       default: "192.168.10.1"
       selector:
         text: {}
@@ -26,6 +28,7 @@ blueprint:
               value: "3"
             - label: "No Change"
               value: "9"
+          mode: dropdown
 
     yellow:
       name: Yellow
@@ -43,6 +46,7 @@ blueprint:
               value: "3"
             - label: "No Change"
               value: "9"
+          mode: dropdown
 
     green:
       name: Green
@@ -60,6 +64,7 @@ blueprint:
               value: "3"
             - label: "No Change"
               value: "9"
+          mode: dropdown
 
     blue:
       name: Blue
@@ -77,6 +82,7 @@ blueprint:
               value: "3"
             - label: "No Change"
               value: "9"
+          mode: dropdown
 
     white:
       name: White
@@ -94,6 +100,7 @@ blueprint:
               value: "3"
             - label: "No Change"
               value: "9"
+          mode: dropdown
 
     buzzer:
       name: Buzzer
@@ -113,15 +120,18 @@ blueprint:
               value: "4"
             - label: "No Change"
               value: "9"
+          mode: dropdown
 
     auto_stop_buzzer:
       name: Auto Stop Buzzer
+      description: Stop only the buzzer after the specified seconds.
       default: true
       selector:
         boolean: {}
 
     buzzer_stop_seconds:
       name: Buzzer Stop Seconds
+      description: Seconds before stopping only the buzzer.
       default: 3
       selector:
         number:
@@ -129,26 +139,43 @@ blueprint:
           max: 300
           step: 1
           mode: slider
-          unit_of_measurement: "seconds"
+          unit_of_measurement: seconds
 
 sequence:
   - variables:
-      alert_value: "{{ red ~ yellow ~ green ~ blue ~ white ~ buzzer }}"
+      patlite_ip_value: !input patlite_ip
+      red_value: !input red
+      yellow_value: !input yellow
+      green_value: !input green
+      blue_value: !input blue
+      white_value: !input white
+      buzzer_value: !input buzzer
+      auto_stop_buzzer_value: !input auto_stop_buzzer
+      buzzer_stop_seconds_value: !input buzzer_stop_seconds
+      alert_value: >
+        {{ red_value ~ yellow_value ~ green_value ~ blue_value ~ white_value ~ buzzer_value }}
 
   - action: http.request
     data:
       method: GET
-      url: "http://{{ patlite_ip }}/api/control?alert={{ alert_value }}"
+      url: >
+        http://{{ patlite_ip_value }}/api/control?alert={{ alert_value }}
 
   - if:
       - condition: template
-        value_template: "{{ auto_stop_buzzer and buzzer != '0' and buzzer != '9' and buzzer_stop_seconds | int > 0 }}"
+        value_template: >
+          {{ auto_stop_buzzer_value
+             and buzzer_value != '0'
+             and buzzer_value != '9'
+             and (buzzer_stop_seconds_value | int > 0) }}
     then:
       - delay:
-          seconds: "{{ buzzer_stop_seconds | int }}"
+          seconds: "{{ buzzer_stop_seconds_value | int }}"
+
       - action: http.request
         data:
           method: GET
-          url: "http://{{ patlite_ip }}/api/control?alert=999990"
+          url: >
+            http://{{ patlite_ip_value }}/api/control?alert=999990
 
 mode: restart

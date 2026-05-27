@@ -122,21 +122,40 @@ blueprint:
               value: "9"
           mode: dropdown
 
-    auto_stop_buzzer:
-      name: Auto Stop Buzzer
-      description: Stop only the buzzer after the specified seconds.
+    stop_buzzer:
+      name: Stop Buzzer Automatically
+      description: Stop only the buzzer after the specified seconds. LED state will remain unchanged.
       default: true
       selector:
         boolean: {}
 
-    buzzer_stop_seconds:
-      name: Buzzer Stop Seconds
+    stop_buzzer_seconds:
+      name: Stop Buzzer Seconds
       description: Seconds before stopping only the buzzer.
       default: 3
       selector:
         number:
           min: 0
-          max: 300
+          max: 180
+          step: 1
+          mode: slider
+          unit_of_measurement: seconds
+
+    clear_alarm:
+      name: Clear Alarm Automatically
+      description: Clear all LEDs and buzzer after the specified seconds.
+      default: false
+      selector:
+        boolean: {}
+
+    clear_alarm_seconds:
+      name: Clear Alarm Seconds
+      description: Seconds before clearing all LEDs and buzzer.
+      default: 30
+      selector:
+        number:
+          min: 0
+          max: 180
           step: 1
           mode: slider
           unit_of_measurement: seconds
@@ -150,30 +169,52 @@ sequence:
       blue_value: !input blue
       white_value: !input white
       buzzer_value: !input buzzer
-      auto_stop_buzzer_value: !input auto_stop_buzzer
-      buzzer_stop_seconds_value: !input buzzer_stop_seconds
+      stop_buzzer_value: !input stop_buzzer
+      stop_buzzer_seconds_value: !input stop_buzzer_seconds
+      clear_alarm_value: !input clear_alarm
+      clear_alarm_seconds_value: !input clear_alarm_seconds
       alert_value: >
         {{ red_value ~ yellow_value ~ green_value ~ blue_value ~ white_value ~ buzzer_value }}
 
   - action: rest_command.patlite_http_control
     data:
       ip: "{{ patlite_ip_value }}"
-      alert: "{{ alert_value }}"
+      command: "alert"
+      value: "{{ alert_value }}"
 
-  - if:
-      - condition: template
-        value_template: >
-          {{ auto_stop_buzzer_value
-             and buzzer_value != '0'
-             and buzzer_value != '9'
-             and (buzzer_stop_seconds_value | int > 0) }}
-    then:
-      - delay:
-          seconds: "{{ buzzer_stop_seconds_value | int }}"
+  - parallel:
+      - sequence:
+          - if:
+              - condition: template
+                value_template: >
+                  {{ stop_buzzer_value
+                     and buzzer_value != '0'
+                     and buzzer_value != '9'
+                     and (stop_buzzer_seconds_value | int > 0) }}
+            then:
+              - delay:
+                  seconds: "{{ stop_buzzer_seconds_value | int }}"
 
-      - action: rest_command.patlite_http_control
-        data:
-          ip: "{{ patlite_ip_value }}"
-          alert: "999990"
+              - action: rest_command.patlite_http_control
+                data:
+                  ip: "{{ patlite_ip_value }}"
+                  command: "alert"
+                  value: "999990"
+
+      - sequence:
+          - if:
+              - condition: template
+                value_template: >
+                  {{ clear_alarm_value
+                     and (clear_alarm_seconds_value | int > 0) }}
+            then:
+              - delay:
+                  seconds: "{{ clear_alarm_seconds_value | int }}"
+
+              - action: rest_command.patlite_http_control
+                data:
+                  ip: "{{ patlite_ip_value }}"
+                  command: "clear"
+                  value: "1"
 
 mode: restart

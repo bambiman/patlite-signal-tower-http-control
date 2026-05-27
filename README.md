@@ -11,7 +11,8 @@ PATLITE NHシリーズなどのシグナルタワーをHome AssistantからHTTP�
 - LED control / LED制御
 - Blink patterns / 点滅パターン
 - Buzzer patterns / ブザーパターン
-- Auto stop buzzer / ブザー自動停止
+- Automatic buzzer stop / ブザー自動停止
+- Automatic alarm clear / 自動アラーム解除
 - GUI selectors inside Home Assistant / Home Assistant GUI対応
 - HTTP based / HTTPベース
 - No additional integrations required / 追加Integration不要
@@ -33,7 +34,7 @@ Add the following to your `configuration.yaml`.
 ```yaml
 rest_command:
   patlite_http_control:
-    url: "http://{{ ip }}/api/control?alert={{ alert }}"
+    url: "http://{{ ip }}/api/control?{{ command }}={{ value }}"
     method: GET
 ```
 
@@ -48,7 +49,7 @@ scene: !include scenes.yaml
 
 rest_command:
   patlite_http_control:
-    url: "http://{{ ip }}/api/control?alert={{ alert }}"
+    url: "http://{{ ip }}/api/control?{{ command }}={{ value }}"
     method: GET
 ```
 
@@ -130,6 +131,36 @@ actions:
 
 ---
 
+# Automatic Actions / 自動動作
+
+## Automatic Buzzer Stop / ブザー自動停止
+
+Stops only the buzzer after the specified seconds while keeping LED states unchanged.
+
+指定秒数後にブザーのみ停止し、LED状態は維持します。
+
+Uses:
+
+```text
+alert=999990
+```
+
+---
+
+## Automatic Alarm Clear / 自動アラーム解除
+
+Clears all LEDs and buzzer after the specified seconds.
+
+指定秒数後にLEDとブザーをすべて解除します。
+
+Uses:
+
+```text
+clear=1
+```
+
+---
+
 # Example Use Cases / 使用例
 
 - Red flashing + buzzer
@@ -137,6 +168,8 @@ actions:
 - Frigate notifications
 - Server monitoring
 - Door open alerts
+- Rack temperature alerts
+- Network outage alerts
 
 ---
 

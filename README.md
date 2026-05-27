@@ -1,35 +1,31 @@
 # PATLITE Signal Tower HTTP Control
 
-Home Assistant script blueprint for controlling PATLITE signal towers over HTTP.
-
-PATLITE NHシリーズなどのシグナルタワーをHome AssistantからHTTP制御するためのスクリプトBlueprintです。
+PATLITE NHシリーズなどのシグナルタワーを、Home AssistantからHTTP制御するためのスクリプトBlueprintです。
 
 ---
 
-# Features / 特徴
+# 主な機能
 
-- LED control / LED制御
-- Blink patterns / 点滅パターン
-- Buzzer patterns / ブザーパターン
-- Automatic buzzer stop / ブザー自動停止
-- Automatic alarm clear / 自動アラーム解除
-- GUI selectors inside Home Assistant / Home Assistant GUI対応
-- HTTP based / HTTPベース
-- No additional integrations required / 追加Integration不要
+- LED制御
+- 点滅パターン制御
+- ブザーパターン制御
+- ブザー自動停止
+- アラーム自動解除
+- Home Assistant GUI対応
+- HTTPベース制御
+- 追加Integration不要
 
 ---
 
-# Supported Devices / 対応機種
+# 対応機種
 
 - PATLITE NH Series
 
 ---
 
-# Required Configuration / 必要な設定
+# 必要な設定
 
-Add the following to your `configuration.yaml`.
-
-以下を `configuration.yaml` に追加してください。
+`configuration.yaml` に以下を追加してください。
 
 ```yaml
 rest_command:
@@ -38,7 +34,7 @@ rest_command:
     method: GET
 ```
 
-Example:
+設定例:
 
 ```yaml
 default_config:
@@ -53,30 +49,19 @@ rest_command:
     method: GET
 ```
 
-After adding it, restart Home Assistant.
-
 追加後、Home Assistantを再起動してください。
 
 ---
 
-# Installation / インストール
+# インストール
 
-Import Blueprint URL:
+Blueprint Import URL:
 
 ```text
 https://raw.githubusercontent.com/bambiman/patlite-signal-tower-http-control/main/blueprints/script/bambiman/patlite_control.yaml
 ```
 
 Home Assistant:
-
-```text
-Settings
-→ Automations & Scenes
-→ Blueprints
-→ Import Blueprint
-```
-
-Home Assistant 日本語UI:
 
 ```text
 設定
@@ -87,17 +72,13 @@ Home Assistant 日本語UI:
 
 ---
 
-# Usage / 使い方
-
-1. Import the blueprint
-2. Create a script from the blueprint
-3. Use the created script inside your automations
+# 使い方
 
 1. Blueprintをインポート
 2. Blueprintからスクリプトを作成
-3. 作成したスクリプトをオートメーションから呼び出します
+3. 作成したスクリプトをオートメーションから呼び出す
 
-Example:
+例:
 
 ```yaml
 actions:
@@ -106,40 +87,38 @@ actions:
 
 ---
 
-# Available Patterns / 使用可能パターン
+# 使用可能パターン
 
 ## LED
 
-| Value | Description |
+| 値 | 動作 |
 |---|---|
-| 0 | Off |
-| 1 | Solid |
-| 2 | Blink 1 |
-| 3 | Blink 2 |
-| 9 | No Change |
+| 0 | 消灯 |
+| 1 | 点灯 |
+| 2 | 点滅1 |
+| 3 | 点滅2 |
+| 9 | 変化なし |
 
-## Buzzer
+## ブザー
 
-| Value | Description |
+| 値 | 動作 |
 |---|---|
-| 0 | Off |
-| 1 | Pattern 1 |
-| 2 | Pattern 2 |
-| 3 | Pattern 3 |
-| 4 | Pattern 4 |
-| 9 | No Change |
+| 0 | 停止 |
+| 1 | パターン1 |
+| 2 | パターン2 |
+| 3 | パターン3 |
+| 4 | パターン4 |
+| 9 | 変化なし |
 
 ---
 
-# Automatic Actions / 自動動作
+# 自動動作
 
-## Automatic Buzzer Stop / ブザー自動停止
-
-Stops only the buzzer after the specified seconds while keeping LED states unchanged.
+## ブザー自動停止
 
 指定秒数後にブザーのみ停止し、LED状態は維持します。
 
-Uses:
+使用コマンド:
 
 ```text
 alert=999990
@@ -147,13 +126,11 @@ alert=999990
 
 ---
 
-## Automatic Alarm Clear / 自動アラーム解除
-
-Clears all LEDs and buzzer after the specified seconds.
+## アラーム自動解除
 
 指定秒数後にLEDとブザーをすべて解除します。
 
-Uses:
+使用コマンド:
 
 ```text
 clear=1
@@ -161,21 +138,19 @@ clear=1
 
 ---
 
-# Example Use Cases / 使用例
+# 使用例
 
-- Red flashing + buzzer
-- UPS alerts
-- Frigate notifications
-- Server monitoring
-- Door open alerts
-- Rack temperature alerts
-- Network outage alerts
+- 赤点滅 + ブザー
+- UPS異常通知
+- Frigate人物検知
+- サーバ監視通知
+- ドア開放通知
+- ラック温度異常
+- ネットワーク障害通知
 
 ---
 
-# Notes / 注意事項
-
-This blueprint uses the PATLITE HTTP API.
+# 注意事項
 
 このBlueprintはPATLITE HTTP APIを利用しています。
 
@@ -183,6 +158,6 @@ PATLITE側でHTTP制御を有効化してください。
 
 ---
 
-# License
+# ライセンス
 
 MIT License

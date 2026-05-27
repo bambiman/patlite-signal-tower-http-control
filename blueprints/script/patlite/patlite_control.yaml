@@ -6,9 +6,9 @@ blueprint:
   input:
     patlite_ip:
       name: PATLITE IP
-      default: 192.168.10.1
+      default: "192.168.10.1"
       selector:
-        text:
+        text: {}
 
     red:
       name: Red
@@ -16,15 +16,15 @@ blueprint:
       selector:
         select:
           options:
-            - label: Off
+            - label: "Off"
               value: "0"
-            - label: Solid
+            - label: "Solid"
               value: "1"
-            - label: Blink 1
+            - label: "Blink 1"
               value: "2"
-            - label: Blink 2
+            - label: "Blink 2"
               value: "3"
-            - label: No Change
+            - label: "No Change"
               value: "9"
 
     yellow:
@@ -33,15 +33,15 @@ blueprint:
       selector:
         select:
           options:
-            - label: Off
+            - label: "Off"
               value: "0"
-            - label: Solid
+            - label: "Solid"
               value: "1"
-            - label: Blink 1
+            - label: "Blink 1"
               value: "2"
-            - label: Blink 2
+            - label: "Blink 2"
               value: "3"
-            - label: No Change
+            - label: "No Change"
               value: "9"
 
     green:
@@ -50,15 +50,15 @@ blueprint:
       selector:
         select:
           options:
-            - label: Off
+            - label: "Off"
               value: "0"
-            - label: Solid
+            - label: "Solid"
               value: "1"
-            - label: Blink 1
+            - label: "Blink 1"
               value: "2"
-            - label: Blink 2
+            - label: "Blink 2"
               value: "3"
-            - label: No Change
+            - label: "No Change"
               value: "9"
 
     blue:
@@ -67,15 +67,15 @@ blueprint:
       selector:
         select:
           options:
-            - label: Off
+            - label: "Off"
               value: "0"
-            - label: Solid
+            - label: "Solid"
               value: "1"
-            - label: Blink 1
+            - label: "Blink 1"
               value: "2"
-            - label: Blink 2
+            - label: "Blink 2"
               value: "3"
-            - label: No Change
+            - label: "No Change"
               value: "9"
 
     white:
@@ -84,15 +84,15 @@ blueprint:
       selector:
         select:
           options:
-            - label: Off
+            - label: "Off"
               value: "0"
-            - label: Solid
+            - label: "Solid"
               value: "1"
-            - label: Blink 1
+            - label: "Blink 1"
               value: "2"
-            - label: Blink 2
+            - label: "Blink 2"
               value: "3"
-            - label: No Change
+            - label: "No Change"
               value: "9"
 
     buzzer:
@@ -101,24 +101,24 @@ blueprint:
       selector:
         select:
           options:
-            - label: Off
+            - label: "Off"
               value: "0"
-            - label: Pattern 1
+            - label: "Pattern 1"
               value: "1"
-            - label: Pattern 2
+            - label: "Pattern 2"
               value: "2"
-            - label: Pattern 3
+            - label: "Pattern 3"
               value: "3"
-            - label: Pattern 4
+            - label: "Pattern 4"
               value: "4"
-            - label: No Change
+            - label: "No Change"
               value: "9"
 
     auto_stop_buzzer:
       name: Auto Stop Buzzer
       default: true
       selector:
-        boolean:
+        boolean: {}
 
     buzzer_stop_seconds:
       name: Buzzer Stop Seconds
@@ -129,31 +129,26 @@ blueprint:
           max: 300
           step: 1
           mode: slider
-          unit_of_measurement: seconds
+          unit_of_measurement: "seconds"
 
 sequence:
   - variables:
-      alert_value: >
-        {{ red ~ yellow ~ green ~ blue ~ white ~ buzzer }}
+      alert_value: "{{ red ~ yellow ~ green ~ blue ~ white ~ buzzer }}"
 
   - action: http.request
     data:
       method: GET
-      url: >
-        http://{{ patlite_ip }}/api/control?alert={{ alert_value }}
+      url: "http://{{ patlite_ip }}/api/control?alert={{ alert_value }}"
 
   - if:
       - condition: template
-        value_template: >
-          {{ auto_stop_buzzer and buzzer != '0' and buzzer != '9' and buzzer_stop_seconds | int > 0 }}
+        value_template: "{{ auto_stop_buzzer and buzzer != '0' and buzzer != '9' and buzzer_stop_seconds | int > 0 }}"
     then:
       - delay:
           seconds: "{{ buzzer_stop_seconds | int }}"
-
       - action: http.request
         data:
           method: GET
-          url: >
-            http://{{ patlite_ip }}/api/control?alert=999990
+          url: "http://{{ patlite_ip }}/api/control?alert=999990"
 
 mode: restart

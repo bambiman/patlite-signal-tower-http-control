@@ -24,18 +24,53 @@ PATLITE NHシリーズなどのシグナルタワーをHome AssistantからHTTP�
 
 ---
 
+# Required Configuration / 必要な設定
+
+Add the following to your `configuration.yaml`.
+
+以下を `configuration.yaml` に追加してください。
+
+```yaml
+rest_command:
+  patlite_http_control:
+    url: "http://{{ ip }}/api/control?alert={{ alert }}"
+    method: GET
+```
+
+Example:
+
+```yaml
+default_config:
+
+automation: !include automations.yaml
+script: !include scripts.yaml
+scene: !include scenes.yaml
+
+rest_command:
+  patlite_http_control:
+    url: "http://{{ ip }}/api/control?alert={{ alert }}"
+    method: GET
+```
+
+After adding it, restart Home Assistant.
+
+追加後、Home Assistantを再起動してください。
+
+---
+
 # Installation / インストール
 
 Import Blueprint URL:
 
 ```text
-https://raw.githubusercontent.com/bambiman/patlite-signal-tower-http-control/main/blueprints/script/patlite/patlite_control.yaml
+https://raw.githubusercontent.com/bambiman/patlite-signal-tower-http-control/main/blueprints/script/bambiman/patlite_control.yaml
 ```
 
 Home Assistant:
 
 ```text
 Settings
+→ Automations & Scenes
 → Blueprints
 → Import Blueprint
 ```
@@ -44,9 +79,54 @@ Home Assistant 日本語UI:
 
 ```text
 設定
+→ オートメーションとシーン
 → ブループリント
 → ブループリントをインポート
 ```
+
+---
+
+# Usage / 使い方
+
+1. Import the blueprint
+2. Create a script from the blueprint
+3. Use the created script inside your automations
+
+1. Blueprintをインポート
+2. Blueprintからスクリプトを作成
+3. 作成したスクリプトをオートメーションから呼び出します
+
+Example:
+
+```yaml
+actions:
+  - action: script.patlite_signal_tower_http_control001
+```
+
+---
+
+# Available Patterns / 使用可能パターン
+
+## LED
+
+| Value | Description |
+|---|---|
+| 0 | Off |
+| 1 | Solid |
+| 2 | Blink 1 |
+| 3 | Blink 2 |
+| 9 | No Change |
+
+## Buzzer
+
+| Value | Description |
+|---|---|
+| 0 | Off |
+| 1 | Pattern 1 |
+| 2 | Pattern 2 |
+| 3 | Pattern 3 |
+| 4 | Pattern 4 |
+| 9 | No Change |
 
 ---
 
@@ -60,24 +140,13 @@ Home Assistant 日本語UI:
 
 ---
 
-# Example Patterns / パターン例
-
-| Pattern | Description |
-|---|---|
-| Red flashing + buzzer | 異常通知 |
-| Yellow flashing | 注意通知 |
-| Green solid | 正常状態 |
-| Blue solid + buzzer | Frigate人物検知 |
-
----
-
 # Notes / 注意事項
 
-This blueprint uses PATLITE HTTP API.
+This blueprint uses the PATLITE HTTP API.
 
 このBlueprintはPATLITE HTTP APIを利用しています。
 
-PATLITE NHシリーズのHTTPコマンド制御を有効化してください。
+PATLITE側でHTTP制御を有効化してください。
 
 ---
 

@@ -155,11 +155,10 @@ sequence:
       alert_value: >
         {{ red_value ~ yellow_value ~ green_value ~ blue_value ~ white_value ~ buzzer_value }}
 
-  - action: http.request
+  - action: rest_command.patlite_http_control
     data:
-      method: GET
-      url: >
-        http://{{ patlite_ip_value }}/api/control?alert={{ alert_value }}
+      ip: "{{ patlite_ip_value }}"
+      alert: "{{ alert_value }}"
 
   - if:
       - condition: template
@@ -172,10 +171,9 @@ sequence:
       - delay:
           seconds: "{{ buzzer_stop_seconds_value | int }}"
 
-      - action: http.request
+      - action: rest_command.patlite_http_control
         data:
-          method: GET
-          url: >
-            http://{{ patlite_ip_value }}/api/control?alert=999990
+          ip: "{{ patlite_ip_value }}"
+          alert: "999990"
 
 mode: restart

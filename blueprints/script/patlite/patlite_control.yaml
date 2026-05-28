@@ -124,14 +124,13 @@ blueprint:
 
     stop_buzzer:
       name: Stop Buzzer Automatically
-      description: Stop only the buzzer after the specified seconds. LED state will remain unchanged.
+      description: Ignored if buzzer is Off.
       default: true
       selector:
         boolean: {}
 
     stop_buzzer_seconds:
       name: Stop Buzzer Seconds
-      description: Seconds before stopping only the buzzer.
       default: 3
       selector:
         number:
@@ -143,14 +142,14 @@ blueprint:
 
     clear_alarm:
       name: Clear Alarm Automatically
-      description: Clear all LEDs and buzzer after the specified seconds.
+      description: If enabled and seconds is 0, this script becomes a Clear-only script.
       default: false
       selector:
         boolean: {}
 
     clear_alarm_seconds:
       name: Clear Alarm Seconds
-      description: Seconds before clearing all LEDs and buzzer.
+      description: 0 = Run clear immediately.
       default: 30
       selector:
         number:
@@ -176,45 +175,57 @@ sequence:
       alert_value: >
         {{ red_value ~ yellow_value ~ green_value ~ blue_value ~ white_value ~ buzzer_value }}
 
-  - action: rest_command.patlite_http_control
-    data:
-      ip: "{{ patlite_ip_value }}"
-      command: "alert"
-      value: "{{ alert_value }}"
+  - if:
+      - condition: template
+        value_template: >
+          {{ clear_alarm_value and (clear_alarm_seconds_value | int == 0) }}
+    then:
+      - action: rest_command.patlite_http_control
+        data:
+          ip: "{{ patlite_ip_value }}"
+          command: "clear"
+          value: "1"
 
-  - parallel:
-      - sequence:
-          - if:
-              - condition: template
-                value_template: >
-                  {{ stop_buzzer_value
-                     and buzzer_value != '0'
-                     and buzzer_value != '9'
-                     and (stop_buzzer_seconds_value | int > 0) }}
-            then:
-              - delay:
-                  seconds: "{{ stop_buzzer_seconds_value | int }}"
+    else:
+      - action: rest_command.patlite_http_control
+        data:
+          ip: "{{ patlite_ip_value }}"
+          command: "alert"
+          value: "{{ alert_value }}"
 
-              - action: rest_command.patlite_http_control
-                data:
-                  ip: "{{ patlite_ip_value }}"
-                  command: "alert"
-                  value: "999990"
+      - parallel:
+          - sequence:
+              - if:
+                  - condition: template
+                    value_template: >
+                      {{ stop_buzzer_value
+                         and buzzer_value != '0'
+                         and buzzer_value != '9'
+                         and (stop_buzzer_seconds_value | int > 0) }}
+                then:
+                  - delay:
+                      seconds: "{{ stop_buzzer_seconds_value | int }}"
 
-      - sequence:
-          - if:
-              - condition: template
-                value_template: >
-                  {{ clear_alarm_value
-                     and (clear_alarm_seconds_value | int > 0) }}
-            then:
-              - delay:
-                  seconds: "{{ clear_alarm_seconds_value | int }}"
+                  - action: rest_command.patlite_http_control
+                    data:
+                      ip: "{{ patlite_ip_value }}"
+                      command: "alert"
+                      value: "999990"
 
-              - action: rest_command.patlite_http_control
-                data:
-                  ip: "{{ patlite_ip_value }}"
-                  command: "clear"
-                  value: "1"
+          - sequence:
+              - if:
+                  - condition: template
+                    value_template: >
+                      {{ clear_alarm_value
+                         and (clear_alarm_seconds_value | int > 0) }}
+                then:
+                  - delay:
+                      seconds: "{{ clear_alarm_seconds_value | int }}"
+
+                  - action: rest_command.patlite_http_control
+                    data:
+                      ip: "{{ patlite_ip_value }}"
+                      command: "clear"
+                      value: "1"
 
 mode: restart

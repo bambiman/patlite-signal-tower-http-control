@@ -11,6 +11,7 @@ PATLITE NHシリーズなどのシグナルタワーを、Home AssistantからHT
 - ブザーパターン制御
 - ブザー自動停止
 - アラーム自動解除
+- Clear専用スクリプト対応
 - Home Assistant GUI対応
 - HTTPベース制御
 - 追加Integration不要
@@ -135,6 +136,17 @@ alert=999990
 ```text
 clear=1
 ```
+
+---
+
+# Clear専用スクリプト
+
+以下の設定にすると、alertを送信せず即時clearのみ実行します。
+
+| 項目 | 値 |
+|---|---|
+| Clear Alarm Automatically | ON |
+| Clear Alarm Seconds | 0 |
 
 ---
 
